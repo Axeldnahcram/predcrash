@@ -1,0 +1,13 @@
+aiohttp
+matplotlib
+numpy
+pytest
+pytest-asyncio
+pytest-runner
+webargs
+pandas
+scipy
+sklearn
+statsmodels
+aiofiles
+aiohttp_auth
