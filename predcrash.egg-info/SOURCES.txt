@@ -2,6 +2,8 @@ setup.py
 predcrash-core/__init__.py
 predcrash-sql/__init__.py
 predcrash-utils/__init__.py
+predcrash-utils/commons.py
+predcrash-utils/constants.py
 predcrash.egg-info/PKG-INFO
 predcrash.egg-info/SOURCES.txt
 predcrash.egg-info/dependency_links.txt
