@@ -1,0 +1,29 @@
+version: "2"
+
+services:
+
+   postgresql:
+     image: postgres:10-alpine
+     ports:
+       - 54321:5432
+     volumes:
+       - $HOME/containers/postgresql/data:/var/lib/postgresql/data
+     restart: always
+     environment:
+       - POSTGRES_PASSWORD=postgres
+
+   pgAdmin4:
+     links:
+       - postgresql
+     image: fenglc/pgadmin4:latest
+     ports:
+       - 5051:5050
+     restart: always
+     environment:
+        - DEFAULT_USER=admin
+
+   redis:
+     image: redis:4-alpine
+     ports:
+       - 63791:6379
+     restart: always
