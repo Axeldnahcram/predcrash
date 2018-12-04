@@ -22,7 +22,7 @@ mpl.rcParams['ytick.labelsize'] = 6.
 
 
 class Map_france(object):
-    def __init__(self, x1=-6., x2=10., y1=41, y2=51.5, figsize=(8, 8)):
+    def __init__(self, x1=-6., x2=10., y1=41., y2=51.5, figsize=(8, 8)):
         self.x1 = x1
         self.x2 = x2
         self.y1 = y1
@@ -41,10 +41,10 @@ class Map_france(object):
             dir = await get_file_content(cfg, directory)
             df = pd.read_csv(dir, encoding='latin1', index_col='Num_Acc')
             list_df.append(df)
-        df_total = pd.concat(list_df, axis=1)
+        df_total = pd.concat(list_df)
         return df_total
 
-    async def plot_data(self, datasets, years, start_date=None, end_date=None, delimitation='gadm36_FRA_2'):
+    async def plot_data(self, datasets, years, start_date=None, end_date=None, delimitation='gadm36_FRA_3'):
         data = await Map_france.make_data(datasets, years)
         LOGGER.info(data.head())
         lat = data['lat'].values
@@ -71,7 +71,7 @@ class Map_france(object):
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     g = Map_france()
-    df = loop.run_until_complete(g.plot_data(['caracteristiques'],[str(i) for i in range(2006,2007)]))
+    df = loop.run_until_complete(g.plot_data(['caracteristiques'],[str(i) for i in range(2010,2011)]))
     LOGGER.info(df)
 
 

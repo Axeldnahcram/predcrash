@@ -192,9 +192,10 @@ async def get_asset_root() -> Dict[str, str]:
     dir = pathlib.Path(__file__).parent.parent
     dir = os.getenv('ASSET_DIRECTORY', dir)
     csv_root = str(pathlib.PurePath(dir, 'PredCrashData'))
+    download_root = str(pathlib.PurePath(dir, 'Download_file'))
     dict_cfg = {}
     dict_cfg["csv_root"] = csv_root
-
+    dict_cfg["download_root"] = download_root
     return dict_cfg
 
 
