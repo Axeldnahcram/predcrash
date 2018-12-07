@@ -5,13 +5,15 @@ from datetime import datetime, timedelta
 import os
 import aiohttp
 import xml.etree.ElementTree as ElTree
-import logzero
+from logzero import logger as LOGGER
 import json
+import requests
 # import xml.etree.ElementTree.Element as Element
 import asyncio
 import predcrash_connect.open_data_gouv.constants as cst
 import json
 from predcrash_utils.commons import get_asset_root
+import re
 
 async def exec_http_request(url: str, params: dict=None, need_api: bool = False) -> str:
     """
@@ -35,7 +37,7 @@ async def exec_http_request(url: str, params: dict=None, need_api: bool = False)
     return res
 
 async def get_all_url_to_download(url_chunk:str):
-    json_result = exec_http_request(cst.API_DATA_GOUV+url_chunk)
+    json_result = await exec_http_request(cst.API_DATA_GOUV+url_chunk)
     dict_good = json.loads(json_result)
     data_needed = dict_good['resources']
     list_url = []
@@ -43,21 +45,39 @@ async def get_all_url_to_download(url_chunk:str):
         list_url.append(i['extras']['check:url'])
     return list_url
 
-async def download_file(session: aiohttp.ClientSession, url:str, file_name:str):
+async def download_file(url:str, file_name:str):
     cfg = await get_asset_root()
     directory_file = os.path.join(cfg['download_root'], file_name)
-    async with session.get(url) as response:
-        assert response.status == 200
+    if not os.path.isfile(directory_file+'.zip'):
+        response = requests.get(url)
+        assert response.status_code == 200
         # For large files use response.content.read(chunk_size) instead.
-        g = await response.read()
+        g = response.content
         extension = response.headers['content-type']
         if '/' in extension :
             start_index = extension.find('/')
             extension = extension[start_index+1:]
-    with open(f"{directory_file}.{extension}", "wb") as f:
-        f.write(g)
+        with open(f"{directory_file}.{extension}", "wb") as f:
+            f.write(g)
     return url
+
+def name_from_url(url:str):
+    l = re.findall('net/.+?.zip', url)
+
+    return l[0][4:-4]
+
+async def main():
+    list_url = await get_all_url_to_download('/datasets/carte-des-departements-2/')
+    timeout = aiohttp.ClientTimeout(total=600)
+    for url in list_url:
+        try:
+            name = name_from_url(url)
+            await download_file(url, name)
+            LOGGER.info(name)
+        except Exception as e:
+            LOGGER.info(e)
+            LOGGER.info(name)
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(download_file(aiohttp.ClientSession(), 'https://biogeo.ucdavis.edu/data/gadm3.6/png/FRA_adm.png','image_test'))
+    loop.run_until_complete(main())
